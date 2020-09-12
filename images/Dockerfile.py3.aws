@@ -88,13 +88,9 @@ RUN chmod a+x /usr/local/bin/run_release.sh
 COPY ./images/aws-scripts/*.sh /usr/local/bin/
 RUN chmod a+x /usr/local/bin/*.sh
 
-# Create a cached copy of the python test scripts so that we don't
-# need to clone the repo just to get access to them
-# TODO (PatrickXYS): I don't really think we need this. These py folders need to checkout from checkout.sh
-RUN mkdir -p /srcCache/kubeflow/testing
-COPY py /srcCache/kubeflow/testing/py
-
 ENV PYTHONPATH /src/kubeflow/testing/py
+
+ENV PATH=/root/go/bin:${PATH}
 
 ENV CLOUD_PROVIDER aws
 

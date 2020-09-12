@@ -132,6 +132,15 @@ def create_started_file(bucket, ui_urls):
   target = os.path.join(prow_artifacts.get_gcs_dir(bucket), "started.json")
   util.upload_to_gcs(contents, target)
 
+
+def create_started_file_s3(bucket, ui_urls):
+  """Create the started file in S3 for gubernator."""
+  contents = prow_artifacts.create_started(ui_urls)
+
+  target = os.path.join(prow_artifacts.get_s3_dir(bucket), "started.json")
+  util.upload_to_s3(contents, target, "started.json")
+
+
 def parse_config_file(config_file, root_dir):
   with open(config_file) as hf:
     config = yaml.load(hf)
@@ -246,9 +255,9 @@ def run(args, file_handler): # pylint: disable=too-many-statements,too-many-bran
     util.configure_kubectl(args.project, args.zone, args.cluster)
     util.load_kube_config()
   elif args.cloud_provider == "aws":
+    create_started_file_s3(args.bucket, {})
     util.aws_configure_credential()
     util.load_kube_config()
-    # TODO (PatrickXYS): add create_started_file
 
   tekton_runner = tekton_client.TektonRunner()
   workflow_names = []
@@ -377,7 +386,7 @@ def run(args, file_handler): # pylint: disable=too-many-statements,too-many-bran
       util.run([ks_cmd, "show", env, "-c", w.component], cwd=w.app_dir)
       util.run([ks_cmd, "apply", env, "-c", w.component], cwd=w.app_dir)
 
-      ui_url = ("http://testing-argo.kubeflow.org/workflows/kubeflow-test-infra/{0}"
+      ui_url = ("http://testing-argo.kubeflow.aws.org/workflows/kubeflow-test-infra/{0}"
               "?tab=workflow".format(workflow_name))
       ui_urls[workflow_name] = ui_url
       logging.info("URL for workflow: %s", ui_url)
@@ -476,6 +485,9 @@ def run(args, file_handler): # pylint: disable=too-many-statements,too-many-bran
 
     # We delay creating started.json until we know the Argo workflow URLs
     create_started_file(args.bucket, ui_urls)
+  elif args.cloud_provider == "aws":
+    # We delay creating started.json until we know the Argo workflow URLs
+    create_started_file_s3(args.bucket, ui_urls)
 
   workflow_success = False
   workflow_phase = {}

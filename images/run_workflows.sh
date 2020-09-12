@@ -9,7 +9,7 @@ set -ex
 /usr/local/bin/checkout.sh /src
 
 # Trigger a workflow
-if [ -z "$CLOUD_PROVIDER" ]
+if [ -z "$CLOUD_PROVIDER" ] || [[ "$CLOUD_PROVIDER" == "gcp" ]]
 then
   python -m kubeflow.testing.run_e2e_workflow \
     --project=kubeflow-ci \
