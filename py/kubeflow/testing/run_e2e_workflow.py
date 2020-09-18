@@ -364,7 +364,7 @@ def run(args, file_handler): # pylint: disable=too-many-statements,too-many-bran
       util.run([ks_cmd, "param", "set", "--env=" + env, w.component, "bucket",
                args.bucket], cwd=w.app_dir)
       util.run([ks_cmd, "param", "set", "--env=" + env, w.component, "cluster_name",
-                "eks-cluster-{}".format(salt)], cwd=w.app_dir)
+                "eks-cluster-{}".format(uuid.uuid4().hex[0:8])], cwd=w.app_dir)
       if args.release:
         util.run([ks_cmd, "param", "set", "--env=" + env, w.component, "versionTag",
                   os.getenv("VERSION_TAG")], cwd=w.app_dir)
@@ -471,8 +471,12 @@ def run(args, file_handler): # pylint: disable=too-many-statements,too-many-bran
         body=wf_result)
       logging.info("Created workflow:\n%s", yaml.safe_dump(py_func_result))
 
-      ui_url = ("http://testing-argo.kubeflow.org/workflows/kubeflow-test-infra/{0}"
-              "?tab=workflow".format(workflow_name))
+      if not args.cloud_provider or args.cloud_provider == "gcp":
+        ui_url = ("http://testing-argo.kubeflow.org/workflows/kubeflow-test-infra/{0}"
+                "?tab=workflow".format(workflow_name))
+      elif args.cloud_provider == "aws":
+        ui_url = ("http://testing-argo.kubeflow.aws.org/workflows/kubeflow-test-infra/{0}"
+                "?tab=workflow".format(workflow_name))
       ui_urls[workflow_name] = ui_url
       logging.info("URL for workflow: %s", ui_url)
 
