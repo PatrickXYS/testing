@@ -553,7 +553,6 @@ def run(args, file_handler): # pylint: disable=too-many-statements,too-many-bran
             wf_status,
             os.path.join(prow_artifacts_dir, '{}.yaml'.format(wf_name)),
             '{}.yaml'.format(wf_name))
-
     for r in tekton_results:
       condition = "Failed"
       name = r.get("metadata", {}).get("name")
@@ -565,7 +564,6 @@ def run(args, file_handler): # pylint: disable=too-many-statements,too-many-bran
         workflow_success = False
       logging.info("Workflow %s/%s finished phase: %s",
                    args.tekton_namespace, name, condition)
-
     # Upload logs to GCS. No logs after this point will appear in the
     # file in gcs
     file_handler.flush()

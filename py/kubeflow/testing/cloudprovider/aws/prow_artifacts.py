@@ -18,9 +18,7 @@ from kubeflow.testing.cloudprovider.aws import util as aws_util
 # prow. Currently AWS test-grid and spyglass are looking at the aws-kubernetes-jenkins bucket
 AWS_PROW_RESULTS_BUCKET = "aws-kubernetes-jenkins"
 
-# TODO(jlewi): Replace create_finished in tensorflow/k8s/py/prow.py with this
-# version. We should do that when we switch tensorflow/k8s to use Argo instead
-# of Airflow.
+
 def create_started(ui_urls):
   """Return a string containing the contents of started.json for gubernator.
 
@@ -63,9 +61,6 @@ def create_started(ui_urls):
   return json.dumps(started)
 
 
-# TODO(jlewi): Replace create_finished in tensorflow/k8s/py/prow.py with this
-# version. We should do that when we switch tensorflow/k8s to use Argo instead
-# of Airflow.
 def create_finished(success, workflow_phase, ui_urls):
   """Create a string containing the contents for finished.json.
 
@@ -108,7 +103,7 @@ def create_finished(success, workflow_phase, ui_urls):
 
 
 def create_finished_file_s3(bucket, success, workflow_phase, ui_urls):
-  """Create the started file in S3 for gubernator."""
+  """Create the finished file in S3 for gubernator."""
   contents = create_finished(success, workflow_phase, ui_urls)
 
   target = os.path.join(get_s3_dir(bucket), "finished.json")
@@ -243,6 +238,7 @@ def check_no_errors_s3(s3_client, artifacts_dir):
 
   return no_errors
 
+
 def finalize_prow_job_to_s3(bucket, workflow_success, workflow_phase, ui_urls):
   """Finalize a prow job.
 
@@ -276,7 +272,7 @@ def finalize_prow_job_to_s3(bucket, workflow_success, workflow_phase, ui_urls):
 
   create_finished_file_s3(bucket, test_success, workflow_phase, ui_urls)
 
-  return True
+  return test_success
 
 
 def main(unparsed_args=None):  # pylint: disable=too-many-locals
@@ -294,10 +290,6 @@ def main(unparsed_args=None):  # pylint: disable=too-many-locals
   subparsers = parser.add_subparsers()
 
   #############################################################################
-  # Copy artifacts.
-  parser_copy = subparsers.add_parser(
-    "copy_artifacts", help="Copy the artifacts.")
-
   # Copy artifacts to S3.
   parser_copy = subparsers.add_parser(
     "copy_artifacts_to_s3", help="Copy the artifacts.")
