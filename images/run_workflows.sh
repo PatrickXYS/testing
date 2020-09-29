@@ -23,7 +23,7 @@ else
   then
     echo "Triggering AWS Argo Workflows"
     python -m kubeflow.testing.run_e2e_workflow \
-      --cluster=${AWS_EKS_CLUSTER:-"kubeflow-prow-dev-test"} \
+      --cluster=${AWS_EKS_CLUSTER:-"kubeflow-shared-test-infra-poc-argo"} \
       --bucket=${ARTIFACTS_S3_BUCKET:-"aws-kubernetes-jenkins"} \
       --config_file=/src/${REPO_OWNER}/${REPO_NAME}/prow_config.yaml \
       --repos_dir=/src \
